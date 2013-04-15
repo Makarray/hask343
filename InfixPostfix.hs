@@ -1,0 +1,11 @@
+-------------------------------------
+--A Haskell implementation of Project #3
+--
+--This Program defines functions that can
+--take an infix expression and convert it
+--to a postfix expression. It also defines
+--functions to evaluate postfix expressions.
+--
+--Due Date: April 19, 2013
+--Authors: Matt Shrider and Steven Hoffman
+--------------------------------------
