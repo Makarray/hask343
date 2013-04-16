@@ -65,6 +65,11 @@ inputPrecedence x = 5
 -----------------------------Still working on the below
 
 --Applies the operators to 2 numbers and returns the result
---applyOperator :: String -> String -> String -> Int
---applyOperator x y "+" = (read x :: Int) + (read y :: Num)
---applyOperator x y op = 0
+applyOperator :: String -> String -> String -> Int
+applyOperator x y "+" = (read x)   + 	(read y)
+applyOperator x y "-" = (read x)   - 	(read y)
+applyOperator x y "*" = (read x)   * 	(read y)
+applyOperator x y "/" = (read x) `div` 	(read y)
+applyOperator x y "%" = (read x) `mod` 	(read y)
+applyOperator x y "^" = (read x)   ^ 	(read y)
+applyOperator x y op = -1
