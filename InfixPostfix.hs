@@ -10,6 +10,59 @@
 --Authors: Matt Shrider and Steven Hoffman
 --------------------------------------
 
+--Returns the postfix representation of an infix expression
+infixToPostfix :: String -> String
+infixToPostfix [] = ""
+infixToPostfix infx = do	
+	let tokens = words infx --split infx by whitespace
+	if (length tokens == 0) then "" --if no tokens, end
+	else tail (iToPHelper (head tokens) (tail tokens) [] "")
+
+--Recursive helper method for infixToPostfix
+--Prameters: current token, remaining tokens, stack, current postfix expr
+--Return: postfix expression
+iToPHelper :: String -> [String] -> [String] -> String -> String
+iToPHelper token [] stack postfix = do
+	if (operand token)
+		then appendStack (postfix ++ " " ++ token) stack
+	else if (rightParen token) 
+		then  foundRightParen [] stack postfix
+	else " Error: the input string was not infix. It ended in " ++ token
+iToPHelper token tokens stack postfix = do
+	if (operand token)
+		then iToPHelper (head tokens) (tail tokens) stack (postfix ++ " " ++ token)
+	else if (leftParen token)
+		then iToPHelper (head tokens) (tail tokens) (token:[]++stack) postfix
+	else if (operator token)
+		then popOperators token tokens stack postfix
+	else if (rightParen token)
+		then foundRightParen tokens stack postfix
+	else " Error: the input string was not infix. It contained " ++ token
+
+--Recursive helper method for iToPHelper.
+--Pops operators from the stack as needed and adds the passed operator onto stack
+popOperators :: String -> [String] -> [String] -> String -> String
+popOperators op tokens [] postfix = iToPHelper (head tokens) (tail tokens) (op:[]) postfix
+popOperators op tokens stack@(x:xs) postfix = do
+	if (stackPrecedence x >= inputPrecedence op)
+		then popOperators op tokens xs (postfix ++ " " ++ x)
+	else iToPHelper (head tokens) (tail tokens) (op:stack) postfix
+
+--Recursive helper method for iToPHelper. Pops from stack and appends to postfix
+--until a left parenthesis is found.
+foundRightParen :: [String] -> [String] -> String -> String
+foundRightParen _ [] _ = " Error: No left paren to match all right parens."
+foundRightParen [] (x:xs) postfix = if (leftParen x)
+	then appendStack postfix xs
+	else foundRightParen [] xs (postfix ++ " " ++ x)
+foundRightParen tokens (x:xs) postfix = if (leftParen x)
+	then iToPHelper (head tokens) (tail tokens) xs postfix
+	else foundRightParen tokens xs (postfix ++ " " ++ x)
+
+--Recursive helper method for iToPHelper. Adds items from stack to end of string
+appendStack :: String -> [String] -> String
+appendStack postfix [] = postfix
+appendStack postfix (x:xs) = postfix ++ " " ++ x ++ (appendStack "" xs)
 
 --Returns true if the input is an operator and false otherwise
 operator :: String -> Bool
