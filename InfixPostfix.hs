@@ -32,12 +32,40 @@ iToPHelper token tokens stack postfix = do
 	if (operand token)
 		then iToPHelper (head tokens) (tail tokens) stack (postfix ++ " " ++ token)
 	else if (leftParen token)
-		then iToPHelper (head tokens) (tail tokens) (token:[]++stack) postfix
+		then iToPHelper (head tokens) (tail tokens) (token:stack) postfix
 	else if (operator token)
 		then popOperators token tokens stack postfix
 	else if (rightParen token)
 		then foundRightParen tokens stack postfix
 	else " Error: the input string was not infix. It contained " ++ token
+
+--Evaluates the postfix string and returns the result
+evaluatePostfix :: String -> Int
+evaluatePostfix [] = 0
+evaluatePostfix postfx = do
+	let tokens = words postfx --split postfx by whitespace
+	if (length tokens == 0) then 0 --if no tokens, end
+	else read (ePHelper (head tokens) (tail tokens) [])
+
+--Recursive helper method for evaluatePostfix
+--Prameters: current token, remaining tokens, stack
+--Return: the evaluation of the postfix expression represented by tokens
+ePHelper :: String -> [String] -> [String] -> String
+ePHelper token [] [] = "0"
+ePHelper token [] stack = head stack
+ePHelper token tokens stack = do
+	if (operand token)
+		then ePHelper (head tokens) (tail tokens) (token:stack)
+	else if (operator token)
+		then 
+--		(ePHelper (head tokens) (tail tokens)
+--		((applyOperator (head (tail stack)) (head stack) token):[]++(tail (tail stack))))
+		do
+			let y = (head stack)
+		     	let x = (head (tail stack))
+                   	let z = applyOperator x y token
+		     	ePHelper (head tokens) (tail tokens) (z:(tail (tail stack)))
+	else "0"
 
 --Recursive helper method for iToPHelper.
 --Pops operators from the stack as needed and adds the passed operator onto stack
@@ -115,14 +143,12 @@ inputPrecedence "%" = 2
 inputPrecedence "^" = 4
 inputPrecedence x = 5
 
------------------------------Still working on the below
-
---Applies the operators to 2 numbers and returns the result
-applyOperator :: String -> String -> String -> Int
-applyOperator x y "+" = (read x)   + 	(read y)
-applyOperator x y "-" = (read x)   - 	(read y)
-applyOperator x y "*" = (read x)   * 	(read y)
-applyOperator x y "/" = (read x) `div` 	(read y)
-applyOperator x y "%" = (read x) `mod` 	(read y)
-applyOperator x y "^" = (read x)   ^ 	(read y)
-applyOperator x y op = -1
+--Applies the operators to 2 numbers and returns the result, cast as a string
+applyOperator :: String -> String -> String -> String
+applyOperator x y "+" = show((read x)   + 	(read y))
+applyOperator x y "-" = show((read x)   - 	(read y))
+applyOperator x y "*" = show((read x)   * 	(read y))
+applyOperator x y "/" = show((read x) `div` 	(read y))
+applyOperator x y "%" = show((read x) `mod` 	(read y))
+applyOperator x y "^" = show((read x)   ^ 	(read y))
+applyOperator x y op = show(-1)
