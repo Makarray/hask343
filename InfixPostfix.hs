@@ -10,6 +10,10 @@
 --Authors: Matt Shrider and Steven Hoffman
 --------------------------------------
 
+--Converts the infix String to postfix and then evaluates it
+evaluateInfix :: String -> Int
+evaluateInfix infx = evaluatePostfix (infixToPostfix infx)
+
 --Returns the postfix representation of an infix expression
 infixToPostfix :: String -> String
 infixToPostfix [] = ""
@@ -52,31 +56,34 @@ evaluatePostfix postfx = do
 --Return: the evaluation of the postfix expression represented by tokens
 ePHelper :: String -> [String] -> [String] -> String
 ePHelper token [] [] = "0"
-ePHelper token [] stack = head stack
+ePHelper token [] stack = do
+	let y = (head stack)
+	let x = (head (tail stack))
+	applyOperator x y token
 ePHelper token tokens stack = do
 	if (operand token)
 		then ePHelper (head tokens) (tail tokens) (token:stack)
 	else if (operator token)
-		then 
---		(ePHelper (head tokens) (tail tokens)
---		((applyOperator (head (tail stack)) (head stack) token):[]++(tail (tail stack))))
-		do
+		then do
 			let y = (head stack)
 		     	let x = (head (tail stack))
                    	let z = applyOperator x y token
-		     	ePHelper (head tokens) (tail tokens) (z:(tail (tail stack)))
+			let sk = tail (tail stack)
+		     	ePHelper (head tokens) (tail tokens) (z:sk)
 	else "0"
 
 --Recursive helper method for iToPHelper.
 --Pops operators from the stack as needed and adds the passed operator onto stack
 popOperators :: String -> [String] -> [String] -> String -> String
-popOperators op tokens [] postfix = iToPHelper (head tokens) (tail tokens) (op:[]) postfix
+popOperators op tokens [] postfix = 
+	iToPHelper (head tokens) (tail tokens) (op:[]) postfix
 popOperators op tokens stack@(x:xs) postfix = do
 	if (stackPrecedence x >= inputPrecedence op)
 		then popOperators op tokens xs (postfix ++ " " ++ x)
 	else iToPHelper (head tokens) (tail tokens) (op:stack) postfix
 
---Recursive helper method for iToPHelper. Pops from stack and appends to postfix
+--Recursive helper method for iToPHelper.
+--Pops from stack and appends to postfix
 --until a left parenthesis is found.
 foundRightParen :: [String] -> [String] -> String -> String
 foundRightParen _ [] _ = " Error: No left paren to match all right parens."
